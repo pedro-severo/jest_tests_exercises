@@ -43,22 +43,48 @@ describe("Testing validateCharacter function", () => {
 
 describe.only("Testing performAttack function", () => {
     const invalidCharacter = new Character("", 0, 0, 0)
-    const attacker = new Character("Blanka", 10, 10, 9)
-    const defender = new Character("Guile", 10, 6, 7)
-    test("It should throw a error by a invalid attacker", () => {
-        expect.assertions(1)
-        try {
-            performAttack(invalidCharacter, defender)
-        } catch (e) {
-            expect(e.message).toBe("Invalid attacker or defender.")
-        }
+    const blanka = new Character("Blanka", 10, 10, 10)
+    const guile = new Character("Guile", 10, 6, 7)
+    const dhalsim = new Character("Dhalsim", 10, 7, 6)
+    const sagat = new Character("Sagat", 10, 10, 9)
+    describe("Testing invalid character error", () => {
+        test("It should throw a error by a invalid attacker", () => {
+            expect.assertions(1)
+            try {
+                performAttack(invalidCharacter, sagat)
+            } catch (e) {
+                expect(e.message).toBe("Invalid attacker or defender.")
+            }
+        })
+        test("It should throw a error by a invalid defender", () => {
+            expect.assertions(1)
+            try {
+                performAttack(blanka, invalidCharacter)
+            } catch (e) {
+                expect(e.message).toBe("Invalid attacker or defender.")
+            }
+        })
     })
-    test("It should throw a error by a invalid defender", () => {
-        expect.assertions(1)
-        try {
-            performAttack(attacker, invalidCharacter)
-        } catch (e) {
-            expect(e.message).toBe("Invalid attacker or defender.")
-        }
+    describe("Testing fight lógic.", () => {
+        test("It should return an attack failure message by defense of defender bigger than attack of attacker", () => {
+            const output = performAttack(guile, sagat)
+            expect(output?.message).toBe("Attack failed. The attacker is too weak for this defender.")
+        })
+        test("It should return an attack failure message by defense of defender equal attack of attacker", () => {
+            const output = performAttack(guile, dhalsim)
+            expect(output?.message).toBe("Attack failed. The attacker is too weak for this defender.")
+        })
+        test("It should return a successful attack", () => {
+            const takenPoints = blanka.attack - guile.defense
+            const attackSnapshot = blanka.attack
+            const defenseSnapshot = guile.defense
+            const output = performAttack(blanka, guile)
+            expect(output?.message).toBe(`Successful attack. ${blanka.name} took ${takenPoints} from ${guile.name}.`)
+            expect(output?.attacker).toBeInstanceOf(Character)
+            expect(output?.defender).toBeInstanceOf(Character)
+            expect(output?.attacker?.attack).toBe(attackSnapshot - 2)
+            expect(output?.defender?.defense).toBe(defenseSnapshot - takenPoints)
+        })
     })
+
 })
